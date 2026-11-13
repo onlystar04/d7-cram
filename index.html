@@ -1,0 +1,607 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>D-7 벼락치기</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Nanum+Pen+Script&display=swap">
+<style>
+/* Layout: one phone-width study planner on grid paper; bright highlighter palette that bleeds to red as the hidden gauge rises */
+:root{
+  color-scheme:light;
+  --paper:#FAFAF6; --grid:#E3E8EF; --ink:#22252E; --ink-soft:#5B6170;
+  --hl:#FFE45C; --mint:#7FD8B6; --sky:#8EC5FF; --pink:#FF8FAB; --pill:#D7303A;
+  --card:#FFFFFF; --line:#D9DEE7;
+  --f-display:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-body:'Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-hand:'Nanum Pen Script','Gowun Dodum',cursive;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px;
+  transition:filter .6s}
+.app{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.screen{display:flex;flex-direction:column;gap:14px}
+.proto{font-size:12px;color:var(--ink-soft);text-align:center;letter-spacing:.02em}
+
+/* start */
+.hero{background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:24px 22px;display:flex;flex-direction:column;gap:12px;box-shadow:5px 5px 0 var(--ink)}
+.dchip{align-self:flex-start;font-family:var(--f-display);background:var(--pink);color:#fff;padding:4px 12px;border-radius:999px;font-size:18px;transform:rotate(-3deg)}
+.hero h1{font-family:var(--f-display);font-weight:400;font-size:52px;line-height:1.05;margin:0;text-wrap:balance}
+.hero h1 mark{background:linear-gradient(transparent 55%,var(--hl) 55%);color:inherit;padding:0 4px}
+.hero p{margin:0;color:var(--ink-soft)}
+.hand{font-family:var(--f-hand);font-size:26px;line-height:1.2;color:var(--ink)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:14px;color:var(--ink-soft)}
+.field input{font:inherit;font-size:17px;padding:10px 12px;border:2px solid var(--ink);border-radius:12px;background:var(--paper);color:var(--ink)}
+.big{font-family:var(--f-display);font-size:22px;background:var(--hl);border:2px solid var(--ink);border-radius:14px;padding:14px;box-shadow:3px 3px 0 var(--ink);transition:transform .1s}
+.big:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.rules{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.rules div{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px;text-align:center;font-size:13px;color:var(--ink-soft)}
+.rules b{display:block;font-family:var(--f-display);font-weight:400;font-size:20px;color:var(--ink)}
+.warn{font-size:13px;color:var(--pill);margin:0}
+
+/* game */
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.daylabel{font-family:var(--f-display);font-size:26px}
+.slot{font-family:var(--f-display);font-size:16px;padding:4px 12px;border-radius:999px;border:2px solid var(--ink);background:var(--hl)}
+.slot.night{background:#2E3557;color:#fff}
+.dleft{font-family:var(--f-hand);font-size:24px;color:var(--pill)}
+.status{background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.rank{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.rank .lbl{font-size:13px;color:var(--ink-soft)}
+.rank .val{font-family:var(--f-display);font-size:32px}
+.rival{font-size:13px;color:var(--ink-soft);text-align:right;line-height:1.35}
+.rival b{display:block;font-family:var(--f-hand);font-size:22px;font-weight:400;color:var(--ink)}
+.bar{display:grid;grid-template-columns:52px 1fr 44px;align-items:center;gap:8px;font-size:14px}
+.bar .t{height:12px;border-radius:999px;background:#EEF1F5;border:1.5px solid var(--ink);overflow:hidden}
+.bar .f{height:100%;border-radius:999px;transition:width .5s}
+.bar .n{text-align:right;color:var(--ink-soft);font-size:13px}
+.bar.low .t{animation:pulse 1s infinite}
+.bar.low .n{color:var(--pill);font-weight:700}
+@keyframes pulse{50%{border-color:var(--pill);box-shadow:0 0 0 3px #FFD3D6}}
+.f.hp{background:var(--mint)} .f.mt{background:var(--sky)} .f.aw{background:var(--pill)}
+.bar.aw .lbl2{color:var(--pill);font-weight:700}
+
+.scene{position:relative;height:170px;border:2px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--card)}
+.scene svg{width:100%;height:100%;display:block}
+.bubble{position:absolute;left:12px;top:12px;max-width:62%;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:6px 10px;font-family:var(--f-hand);font-size:22px;line-height:1.15}
+.bubble.pop{animation:pop .35s ease-out}
+.bubble.bad{background:#FFE9EA}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+
+.chat{background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-height:96px}
+.chat .head{font-size:12px;color:var(--ink-soft);display:flex;justify-content:space-between}
+.msg{display:flex;gap:8px;align-items:flex-start;font-size:15px}
+.msg .who{flex:none;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EEF1F5}
+.msg.rv .who{background:var(--hl)}
+.msg.unk .who{background:var(--pill);color:#fff}
+.msg.unk .tx{color:var(--pill)}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ch{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:4px;box-shadow:3px 3px 0 var(--ink);transition:transform .1s;min-width:0}
+.ch:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.ch .nm{font-family:var(--f-display);font-size:19px;line-height:1.2}
+.ch .ds{font-size:13px;color:var(--ink-soft)}
+.ch .fx{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.ch .fx span{font-size:13px;font-weight:700;padding:2px 8px;border-radius:6px;background:#EEF1F5;letter-spacing:.02em}
+.ch .fx span.bad{background:#FFE3E5;color:#9E1E26}
+.ch .fx span.good{background:#DDF6EC;color:#14624A}
+.ch.pillc{background:#FFF0F1;border-color:var(--pill);box-shadow:3px 3px 0 var(--pill);grid-column:1/-1}
+.ch.pillc .nm{color:var(--pill)}
+.inv{font-size:13px;color:var(--pill);text-align:right;min-height:20px}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;max-width:min(400px,calc(100% - 32px));text-align:center;z-index:20}
+
+/* event overlay */
+.overlay{position:fixed;inset:0;background:rgba(20,18,24,.72);display:flex;align-items:center;justify-content:center;z-index:30;padding:20px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px))}
+.ev{width:100%;max-width:420px;background:#1E1B24;color:#F2EEF5;border-radius:20px;overflow:hidden;border:2px solid #000}
+.ev.light{background:var(--card);color:var(--ink);border-color:var(--ink)}
+.ev svg{display:block;width:100%;height:170px}
+.ev .body{padding:18px;display:flex;flex-direction:column;gap:12px}
+.ev .place{font-size:12px;letter-spacing:.08em;color:#B8AFC2}
+.ev.light .place{color:var(--ink-soft)}
+.ev .ttl{font-family:var(--f-display);font-size:26px;line-height:1.2}
+.ev .line{font-size:17px;min-height:52px;margin:0}
+.ev .line b{color:#FF8E96}
+.ev.light .line b{color:var(--pill)}
+.ev .btns{display:flex;flex-direction:column;gap:8px}
+.ev .btns button{border:2px solid currentColor;background:transparent;border-radius:12px;padding:12px;font-family:var(--f-display);font-size:18px}
+.ev .btns button.red{background:var(--pill);border-color:var(--pill);color:#fff}
+.ev.light .btns button{background:var(--hl);border-color:var(--ink);box-shadow:2px 2px 0 var(--ink)}
+
+/* result */
+.grading{font-family:var(--f-display);font-size:28px;text-align:center;padding:60px 0}
+.cardimg{width:100%;border-radius:18px;border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);background:var(--card)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row button{flex:1 1 120px}
+.sec{font-family:var(--f-display);font-size:16px;background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:12px}
+.note{font-size:13px;color:var(--ink-soft);text-align:center;margin:0}
+.dex{background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.dex h2{font-family:var(--f-display);font-weight:400;font-size:20px;margin:0;display:flex;justify-content:space-between}
+.dex h2 span{font-size:16px;color:var(--ink-soft)}
+.dexgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.dexgrid div{aspect-ratio:3/4;border:1.5px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;line-height:1.25;padding:4px;color:var(--ink-soft);background:#F3F5F8;word-break:keep-all}
+.dexgrid div.on{background:var(--hl);color:var(--ink);border-color:var(--ink);font-weight:700}
+.dexgrid div.on.dark{background:#22252E;color:#FF8E96}
+.dexgrid div.new{animation:pop .5s}
+
+/* bridge */
+.bridge{background:#17151C;color:#EEE9F2;border-radius:22px;padding:26px 22px;display:flex;flex-direction:column;gap:16px;border:2px solid #000}
+.bridge .kick{font-size:12px;letter-spacing:.1em;color:#A9A0B4}
+.bridge h2{font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1.25;margin:0;text-wrap:balance}
+.bridge p{margin:0;color:#CFC8D8}
+.bridge em{font-style:normal;color:#FF8E96}
+.door{position:relative;height:300px;border-radius:14px;overflow:hidden;background:#2A2632}
+.door svg{width:100%;height:100%;display:block}
+.leaf{transform-origin:22% 50%;transition:transform 1.4s cubic-bezier(.6,.1,.2,1)}
+.door.open .leaf{transform:perspective(600px) rotateY(-78deg)}
+.quote{font-family:var(--f-hand);font-size:30px;line-height:1.25;color:#fff;opacity:0;transition:opacity 1s .9s}
+.door.open + .quote{opacity:1}
+.links{display:flex;flex-direction:column;gap:8px}
+.links a{display:block;text-align:center;text-decoration:none;font-family:var(--f-display);font-size:18px;padding:12px;border-radius:12px;border:2px solid #EEE9F2;color:#EEE9F2}
+.links a.main{background:var(--pill);border-color:var(--pill)}
+.credit{font-size:12px;color:#9A92A6;text-align:center}
+
+/* awakening levels */
+body.aw2{filter:saturate(.7) hue-rotate(-8deg)}
+body.aw2 .status{border-color:var(--pill)}
+body.aw3{filter:saturate(.45) contrast(1.05)}
+body.aw3 .daylabel,body.aw3 .rank .val{animation:jit 2.4s infinite steps(1)}
+@keyframes jit{0%,88%{transform:none;text-shadow:none}90%{transform:translateX(2px);text-shadow:-2px 0 var(--pill),2px 0 var(--sky)}94%{transform:translateX(-2px)}}
+.snd{font-size:12px;padding:3px 8px;border-radius:999px;border:1.5px solid var(--ink);background:var(--card)}
+body.flick{animation:flick .9s}
+@keyframes flick{0%,100%{filter:none}25%{filter:brightness(.25)}45%{filter:invert(1) brightness(.35)}70%{filter:brightness(.15) saturate(0)}}
+.ghost-in{animation:gin .7s steps(2)}
+@keyframes gin{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
+.overlay.void{background:#050506}
+.ev.void{background:#050506;border-color:#050506}
+.ev.void .line{font-family:var(--f-hand);font-size:34px;line-height:1.3;color:#E9E3EE;text-align:center;min-height:120px;display:flex;align-items:center;justify-content:center}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app" id="app">
+  <section class="screen" id="s-start">
+    <div class="hero">
+      <span class="dchip">시험까지 D-7</span>
+      <h1>성령고<br><mark>전교 1등</mark>,<br>가보자고</h1>
+      <p>새 학기 첫날은 진단평가. 남은 7일, 하루 두 번의 선택으로 등수가 갈린다. 옆반 전교 1등을 넘어설 수 있을까?</p>
+      <p class="hand">벼락치기도 전략이다…!</p>
+      <div class="rules">
+        <div><b>7일</b>남은 시간</div>
+        <div><b>×2</b>방과 후 · 심야</div>
+        <div><b>10개</b>숨은 엔딩</div>
+      </div>
+      <p class="warn">체력이나 멘탈이 바닥나면 그 자리에서 끝. 막 누르면 보건실 직행.</p>
+      <p class="note" style="text-align:left">팁: 몰아치고, 쉬고, 다시 몰아치기. 리듬이 1등의 비결. 이어폰 끼고 하면 더 좋아요.</p>
+      <div class="field"><label for="nm">결과 카드에 들어갈 이름</label><input id="nm" maxlength="10" placeholder="익명의 수험생"></div>
+      <button class="big" id="go">벼락치기 시작</button>
+    </div>
+    <div class="dex" id="dex-start" hidden><h2>엔딩 도감 <span id="dexn0"></span></h2><div class="dexgrid" id="dexgrid0"></div></div>
+    <p class="proto">공모전 기획 프로토타입 · SBS 드라마 〈각성〉 캠페인 가안 (비공식) · 라이벌 ‘전교 1등’은 게임용 가상 인물</p>
+  </section>
+
+  <section class="screen" id="s-game" hidden>
+    <div class="top"><span class="daylabel" id="day">DAY 1</span><span class="dleft" id="dleft">시험까지 7일</span><span class="slot" id="slot">방과 후</span><button class="snd" id="snd" aria-pressed="true">소리 켬</button></div>
+    <div class="status">
+      <div class="rank"><div><div class="lbl">예상 등수</div><div class="val" id="rank">전교 300등쯤</div></div><div class="rival">라이벌 · 옆반 전교 1등<b id="gap">아직 한참 멀었다</b></div></div>
+      <div class="bar" id="row-hp"><span>체력</span><div class="t"><div class="f hp" id="b-hp"></div></div><span class="n" id="n-hp"></span></div>
+      <div class="bar" id="row-mt"><span>멘탈</span><div class="t"><div class="f mt" id="b-mt"></div></div><span class="n" id="n-mt"></span></div>
+      <div class="bar aw" id="row-aw" hidden><span class="lbl2">???</span><div class="t"><div class="f aw" id="b-aw"></div></div><span class="n" id="n-aw"></span></div>
+    </div>
+    <div class="scene" id="sceneWrap"><div id="scene"></div><div class="bubble" id="bubble">시험까지 7일… 할 수 있다!</div></div>
+    <div class="chat"><div class="head"><span>공부 단톡방</span><span id="chatn">4명</span></div><div id="msgs"></div></div>
+    <div class="choices" id="choices"></div>
+    <div class="inv" id="inv"></div>
+  </section>
+
+  <section class="screen" id="s-result" hidden>
+    <p class="grading" id="grading">채점 중…</p>
+    <img class="cardimg" id="card" alt="벼락치기 결과 카드" hidden>
+    <div id="resultUI" hidden style="display:flex;flex-direction:column;gap:14px">
+      <div class="row"><button class="sec" id="save" hidden>이미지 저장</button><button class="sec" id="copy">결과 문구 복사</button><button class="sec" id="again">다시 하기</button></div>
+      <p class="note" id="savehint">이미지를 길게 누르거나 우클릭하면 저장할 수 있어요.</p>
+      <div class="dex"><h2>엔딩 도감 <span id="dexn"></span></h2><div class="dexgrid" id="dexgrid"></div></div>
+      <button class="big" id="tobridge">그리고, 새 학기 첫날</button>
+      <p class="note">충분한 수면이 진짜 벼락치기. 게임 속 알약은 가상의 설정입니다.</p>
+    </div>
+  </section>
+
+  <section class="screen" id="s-bridge" hidden>
+    <div class="bridge">
+      <span class="kick">새 학기 첫날 · 성령고등학교</span>
+      <h2 id="br-h"></h2>
+      <p id="br-p"></p>
+      <div class="door" id="door"></div>
+      <p class="quote" id="quote">“괜찮아. 이제 혼자 버티지 않아도 돼.”</p>
+      <p>상담실 문 앞에 서 있는 사람은 바티칸이 보낸 구마 사제, <em>안토니오 신부</em>(이준혁). 새 학기 첫날, 같은 날 전학 온 공하랑과 함께 성령고의 이야기가 시작됩니다.</p>
+      <button class="big" id="opendoor">상담실 문 열기</button>
+      <div class="links" id="links" hidden>
+        <a class="main" href="https://programs.sbs.co.kr/drama/awakening/clips/89816" target="_blank" rel="noopener">공식 티저 보기</a>
+        <a href="https://programs.sbs.co.kr/drama/awakening" target="_blank" rel="noopener">SBS 〈각성〉 · 2027 방송 예정</a>
+      </div>
+      <p class="credit">극본 장윤미 · 연출 오준혁 · 안토니오 대사는 캠페인 가안</p>
+    </div>
+    <button class="sec" id="again2">처음부터 다시</button>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="overlay" id="ov" hidden><div class="ev" id="evbox"><div id="evart"></div><div class="body"><span class="place" id="evplace"></span><span class="ttl" id="evttl" hidden></span><p class="line" id="evline"></p><div class="btns" id="evbtns"></div></div></div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const chance=p=>Math.random()<p;
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+
+const AFTER=[
+ {id:'self',nm:'자습실 고정석',ds:'조용히 문제집 정복',s:6,h:-9,m:-5},
+ {id:'hagwon',nm:'대치동 학원',ds:'일타 강의 + 숙제 폭탄',s:9,h:-14,m:-10},
+ {id:'suhaeng',nm:'수행평가 준비',ds:'내신은 수행에서 갈린다',s:5,h:-6,m:-3},
+ {id:'friend',nm:'친구랑 떡볶이',ds:'오늘만 쉬자',s:0,h:6,m:20},
+ {id:'counsel',nm:'상담실 가보기',ds:'누가 얘기 좀 들어줬으면',s:0,h:0,m:6},
+];
+const NIGHT=[
+ {id:'sleep',nm:'꿀잠 자기',ds:'내일의 나를 위해',s:0,h:28,m:5},
+ {id:'allnight',nm:'밤샘 벼락치기',ds:'커피 두 캔 장전',s:11,h:-24,m:-12},
+ {id:'inkang',nm:'인강 1.5배속',ds:'누워서 듣는 건 반칙',s:6,h:-8,m:-4},
+];
+const PILL={id:'pill',nm:'정체불명의 알약',ds:'안 졸리고, 머리가 맑아진대',s:16,h:0,m:2,aw:28};
+
+// luck: [probability, bubble text, mutate(gain) -> {g,h,m}]
+const LUCK={
+ self:[[.18,'옆자리가 다리를 떤다… 집중 실패',g=>({g:Math.round(g/2)})],[.12,'오늘따라 문제가 술술 풀린다!',g=>({g:g+4,good:1})]],
+ hagwon:[[.15,'일타쌤이 찍어준 문제가 딱!',g=>({g:g+5,good:1})],[.15,'숙제 폭탄 추가… 손목이 아프다',g=>({g,h:-6})]],
+ suhaeng:[[.2,'조원이 잠수탐. 혼자 다 했다',g=>({g,h:-6,m:-6})],[.12,'선생님이 “이거 잘했네” 하심',g=>({g:g+3,m:5,good:1})]],
+ friend:[[.25,'떡볶이 먹다가 결국 공부 얘기만 함',g=>({g,m:-10})],[.15,'배 터지게 웃었다. 살 것 같다',g=>({g,m:8,good:1})]],
+ sleep:[[.12,'알람 못 들음 → 지각 벌청소',g=>({g,m:-8})],[.12,'꿈에서 문제를 풀었다(?)',g=>({g:g+2,good:1})]],
+ allnight:[[.25,'책에 침 흘리고 잠듦…',g=>({g:0,h:10})],[.1,'새벽 3시의 각성 모드! 미친 집중력',g=>({g:g+5,good:1})]],
+ inkang:[[.22,'1.5배속이 자장가였다',g=>({g:0,h:6})]],
+};
+const BUBBLE={self:'좋아, 문제집 한 권 끝!',hagwon:'머리가 꽉 찼다…',suhaeng:'수행평가 하나 해치움',friend:'역시 떡볶이는 진리',sleep:'푹 잤다!',allnight:'해 뜨는 거 봤다…',inkang:'인강 완강!',pill:'머리가 이상하게 맑다'};
+
+const EVENTS=[
+ {t:'쪽지시험 기습!',d:'담임쌤이 갑자기 종이를 나눠준다. 범위는… 안 본 데다.',a:[
+  ['감으로 찍는다',()=>chance(.5)?(S.sc+=4,'찍은 게 다 맞았다! 성적 ↑'):(S.mt-=8,'0점. 교무실에 불려 갔다. 멘탈 ↓')],
+  ['깔끔하게 백지',()=>(S.mt+=4,S.sc-=1,'마음은 편하다. 성적은 모르겠다')]]},
+ {t:'엄마 카톡',d:'“옆집 애 이번에 전교 1등 했대~”',a:[
+  ['읽씹한다',()=>(S.mt-=3,'…못 본 걸로 하자')],
+  ['“나도 할 거임” 보낸다',()=>(S.sc+=3,S.mt-=8,'호언장담 완료. 의욕 ↑ 압박 ↑')]]},
+ {t:'노트 좀 빌려줄래?',d:'친구가 시험 직전에 필기 노트를 빌려 달란다.',a:[
+  ['빌려준다',()=>(S.mt+=8,'친구가 매점 빵을 사 왔다. 멘탈 ↑')],
+  ['모른 척한다',()=>(S.sc+=3,S.mt-=6,'공부 시간은 지켰지만 마음이 찝찝하다')]]},
+ {t:'매점 신상 출시',d:'소문의 크림빵이 들어왔다. 줄이 복도 끝까지.',a:[
+  ['줄 선다',()=>(S.hp+=8,S.sc-=1,'존맛. 체력 ↑')],
+  ['참는다',()=>(S.mt-=4,'크림빵 생각만 난다…')]]},
+ {t:'전교 1등의 제안',d:'옆반 전교 1등이 “노트 정리 공유할까?” 하고 다가온다.',a:[
+  ['받는다',()=>chance(.75)?(S.sc+=5,'역시 1등의 노트. 성적 ↑'):(S.sc-=3,'…일부러 틀린 걸 적어 놨잖아?! 성적 ↓')],
+  ['거절한다',()=>(S.mt+=3,'자존심은 지켰다')]]},
+ {t:'조별과제 무임승차',d:'수행평가 조원 둘이 단톡에서 사라졌다.',a:[
+  ['내가 다 한다',()=>(S.sc+=4,S.hp-=10,'완성은 했다. 체력 ↓')],
+  ['단톡에 정중히 박제',()=>(S.mt+=6,S.sc+=1,'다들 바로 답장함ㅋㅋ 멘탈 ↑')]]},
+ {t:'체육시간 피구',d:'오늘 체육은 반 대항 피구다.',a:[
+  ['진심으로 한다',()=>(S.hp-=6,S.mt+=10,'최후의 1인! 멘탈 ↑ 체력 ↓')],
+  ['구석에서 단어 외우기',()=>(S.sc+=3,S.mt-=4,'영단어 30개 득템')]]},
+ {t:'담임 면담',d:'“요즘 얼굴이 안 좋다. 잠은 자니?”',a:[
+  ['괜찮다고 한다',()=>(S.mt-=3,'괜찮은 척했다')],
+  ['솔직하게 말한다',()=>(S.mt+=10,'조금 울컥했다. 그래도 후련하다')]]},
+];
+const RIVAL={2:'기출 5회독 끝ㅋ 다들 몇 회독?',4:'너 이번에 몇 등 나올 것 같아?',6:'이번에도 1등은 내 거',7:'내일 보자. 진단평가에서'};
+const RIVAL_AW='너 요즘 눈이 좀 이상하다?';
+const MORNING=[
+ ['반장','다들 진단평가 범위 봤냐…'],
+ ['지민','옆반 전교 1등 벌써 기출 3회독 했대ㄷㄷ'],
+ ['지민','학원 셔틀에서 들었는데 요즘 다들 뭐 먹는대'],
+ ['반장','수행평가 마감 금요일이다 다들 살아있냐'],
+ ['지민','1등은 또 옆반 걔겠지'],
+ ['반장','새 학기에 새 상담쌤 오신다던데 신부님이래'],
+ ['반장','내일이 시험. 오늘이 마지막 밤.'],
+];
+const WHISPER=['너도 들리지?','잠들면 안 돼','조금만 더','여기 있어','다 들려','괜찮아, 괜찮아'];
+const EVENT_DAYS=[2,4,6,7];
+
+const ENDINGS=[
+ {k:'kkol',n:'전교 꼴등'},{k:'bankkol',n:'반 꼴찌'},{k:'mid',n:'어중간'},{k:'upper',n:'무난한 상위권'},{k:'third',n:'3등'},
+ {k:'second',n:'2등'},{k:'first',n:'1등'},{k:'burn',n:'보건실',d:1},{k:'mental',n:'멘탈 붕괴',d:1},{k:'aw',n:'각성',d:1}];
+
+let S;
+function reset(){S={day:1,slot:0,sc:0,hp:80,mt:70,aw:0,pills:0,met:0,took:false,used:0,cnt:{},log:[],evPool:EVENTS.slice().sort(()=>Math.random()-.5),over:null,mood:'normal',rival:0};}
+const clamp=v=>Math.max(0,Math.min(100,v));
+function fixStats(){S.hp=clamp(S.hp);S.mt=clamp(S.mt);S.sc=Math.max(0,S.sc)}
+function tierOf(sc){
+ if(sc>=84)return{k:'first',t:'1등',r:1,c:'전교 1등을 꺾었다. 성령고 정복!'};
+ if(sc>=77)return{k:'second',t:'2등',r:2,c:'너만 없으면 1등… 기다려라, 전교 1등'};
+ if(sc>=70)return{k:'third',t:'3등',r:3,c:'시상대엔 올라갔다'};
+ if(sc>=58)return{k:'upper',t:'무난한 상위권',r:Math.round(40-(sc-58)*3),c:'엄마한테 혼나진 않음'};
+ if(sc>=45)return{k:'mid',t:'어중간',r:Math.round(160-(sc-45)*9),c:'평균의 수호자'};
+ if(sc>=32)return{k:'bankkol',t:'반 꼴찌',r:Math.round(270-(sc-32)*8),c:'우리 반의 평화 담당'};
+ return{k:'kkol',t:'전교 꼴등',r:300,c:'벼락은 맞았는데 치지는 못함'};
+}
+function endingKey(){if(S.took)return 'aw';if(S.over)return S.over;return tierOf(S.sc).k}
+function show(id){['s-start','s-game','s-result','s-bridge'].forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0)}
+function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(toast.tm);toast.tm=setTimeout(()=>e.hidden=true,2000)}
+function glitch(s){if(S.aw<50)return s;return s.split('').map(c=>Math.random()<.12&&c!==' '?'▒░▓'[Math.floor(Math.random()*3)]:c).join('')}
+function awLevel(){return S.aw>=75?3:S.aw>=50?2:S.aw>0?1:0}
+function addMsg(who,tx,cls){S.log.push({who,tx,cls});if(S.log.length>3)S.log.shift()}
+function say(t,bad){const b=$('bubble');b.textContent=t;b.className='bubble pop'+(bad?' bad':'');void b.offsetWidth;}
+function shake(){const w=$('sceneWrap');w.classList.remove('shake');void w.offsetWidth;w.classList.add('shake')}
+
+// endings dex (per-viewer, optional)
+function loadDex(){try{return JSON.parse(localStorage.getItem('d7-endings')||'[]')}catch(e){return []}}
+function saveDex(arr){try{localStorage.setItem('d7-endings',JSON.stringify(arr))}catch(e){}}
+function renderDex(grid,count,newKey){const got=loadDex();grid.innerHTML='';ENDINGS.forEach(e=>{const d=document.createElement('div');const on=got.includes(e.k);d.className=(on?'on':'')+(on&&e.d?' dark':'')+(e.k===newKey?' new':'');d.textContent=on?e.n:'???';grid.append(d)});count.textContent=got.length+' / '+ENDINGS.length}
+
+function moodOf(){if(S.aw>=50)return 'creepy';if(S.hp<30||S.mt<25)return 'wrecked';if(S.hp<55||S.mt<45)return 'tired';return S.mood==='happy'?'happy':'normal'}
+function face(m){
+ const skin='#FFD9B8';
+ let eyes='<circle cx="232" cy="80" r="3" fill="#22252E"/><circle cx="248" cy="80" r="3" fill="#22252E"/>';
+ let mouth='<path d="M233 92 Q240 97 247 92" stroke="#22252E" stroke-width="2.5" fill="none"/>';
+ let hair='<path d="M218 74 Q240 46 262 74 Q250 62 240 64 Q228 62 218 74Z" fill="#22252E"/>';
+ let extra='';
+ if(m==='happy'){eyes='<path d="M228 81 Q232 76 236 81" stroke="#22252E" stroke-width="2.5" fill="none"/><path d="M244 81 Q248 76 252 81" stroke="#22252E" stroke-width="2.5" fill="none"/>';mouth='<path d="M231 90 Q240 100 249 90Z" fill="#22252E"/>';extra='<circle cx="226" cy="89" r="4" fill="#FF8FAB" opacity=".6"/><circle cx="254" cy="89" r="4" fill="#FF8FAB" opacity=".6"/>'}
+ if(m==='tired'){extra='<path d="M227 86 Q232 89 237 86" stroke="#8C7FA8" stroke-width="2" fill="none"/><path d="M243 86 Q248 89 253 86" stroke="#8C7FA8" stroke-width="2" fill="none"/>';mouth='<line x1="234" y1="93" x2="246" y2="93" stroke="#22252E" stroke-width="2.5"/>'}
+ if(m==='wrecked'){eyes='<line x1="228" y1="80" x2="236" y2="80" stroke="#22252E" stroke-width="3"/><line x1="244" y1="80" x2="252" y2="80" stroke="#22252E" stroke-width="3"/>';mouth='<path d="M233 96 Q240 90 247 96" stroke="#22252E" stroke-width="2.5" fill="none"/>';hair='<path d="M214 76 L220 54 L228 66 L236 48 L242 64 L252 50 L256 66 L266 58 L262 76 Q240 60 214 76Z" fill="#22252E"/>';extra='<path d="M226 86 Q232 91 238 86" stroke="#6E5F8C" stroke-width="3" fill="none"/><path d="M242 86 Q248 91 254 86" stroke="#6E5F8C" stroke-width="3" fill="none"/><path d="M262 70 q4 6 0 10 q-4 -4 0 -10Z" fill="#8EC5FF"/>'}
+ if(m==='creepy'){eyes='<circle cx="232" cy="80" r="4.5" fill="#fff" stroke="#22252E" stroke-width="1.5"/><circle cx="232" cy="80" r="2" fill="#D7303A"/><circle cx="248" cy="80" r="4.5" fill="#fff" stroke="#22252E" stroke-width="1.5"/><circle cx="248" cy="80" r="2" fill="#D7303A"/>';mouth='<path d="M228 90 Q240 102 252 90" stroke="#22252E" stroke-width="2.5" fill="#fff"/>'}
+ return `<circle cx="240" cy="82" r="22" fill="${skin}" stroke="#22252E" stroke-width="3"/>${hair}${eyes}${mouth}${extra}<rect x="216" y="104" width="48" height="24" rx="9" fill="#7FD8B6" stroke="#22252E" stroke-width="3"/>`;
+}
+function scene(){
+ const night=S.slot===1,lv=awLevel();
+ const sky=night?'#2E3557':'#BFE3FF',lamp=night?'#FFE45C':'#F3F5F8';
+ const tint=lv>=2?`<rect width="400" height="170" fill="#D7303A" opacity="${lv===3?.22:.12}"/>`:'';
+ const extra=lv>=1?`<g opacity="${lv>=2?.9:.5}"><circle cx="330" cy="62" r="13" fill="#141216"/><rect x="318" y="74" width="24" height="44" rx="10" fill="#141216"/></g>`:'';
+ $('scene').innerHTML=`<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice" aria-label="${night?'밤':'낮'}의 책상 앞 학생">
+ <rect width="400" height="170" fill="${night?'#3B3F5C':'#FFF7E0'}"/>
+ <rect x="250" y="20" width="120" height="90" rx="6" fill="${sky}" stroke="#22252E" stroke-width="3"/>
+ <line x1="310" y1="20" x2="310" y2="110" stroke="#22252E" stroke-width="3"/>
+ ${night?'<circle cx="345" cy="42" r="9" fill="#FFF6C8"/>':'<circle cx="345" cy="42" r="12" fill="#FFD447"/>'}
+ ${extra}
+ <rect x="0" y="128" width="400" height="42" fill="#C98F5A"/>
+ <rect x="60" y="112" width="70" height="18" fill="#FF8FAB" stroke="#22252E" stroke-width="2"/>
+ <rect x="66" y="98" width="62" height="14" fill="#8EC5FF" stroke="#22252E" stroke-width="2"/>
+ <path d="M160 128 L170 76 L200 76" stroke="#22252E" stroke-width="4" fill="none"/>
+ <path d="M188 68 L216 68 L210 88 L194 88Z" fill="${lamp}" stroke="#22252E" stroke-width="3"/>
+ ${night?'<path d="M194 88 L160 128 L250 128 L210 88Z" fill="#FFE45C" opacity=".35"/>':''}
+ ${S.ghost?'<g class="ghost-in"><circle cx="284" cy="66" r="15" fill="#141216"/><rect x="269" y="80" width="30" height="64" rx="12" fill="#141216"/></g>':''}
+ ${face(moodOf())}
+ ${S.pills>0?'<circle cx="146" cy="122" r="6" fill="#D7303A" stroke="#22252E" stroke-width="2"/>':''}
+ ${tint}</svg>`;
+}
+function lvl(v,a,b){v=Math.abs(v);return v===0?0:v<=a?1:v<=b?2:3}
+function chip(name,v,a,b){const n=lvl(v,a,b);if(!n)return null;return [name+' '+(v>0?'▲':'▼').repeat(n),v>0?'good':'bad']}
+function hint(a){
+ if(a.id==='counsel')return [chip('멘탈',a.m,5,12),['???','']];
+ if(a.id==='pill')return [chip('성적',a.s,6,10),['체력 그대로','good'],['??? ▲','bad']];
+ if(awLevel()>=2&&chance(.4))return [['괜찮아, 괜찮아','']];
+ return [chip('성적',a.s,6,10),chip('체력',a.h,8,16),chip('멘탈',a.m,5,12)].filter(Boolean);
+}
+function word(v,kind){if(kind==='hp')return v>=60?'쌩쌩':v>=30?'피곤':'한계!';return v>=60?'멀쩡':v>=30?'불안':'위험!'}
+function gapText(){const tr=tierOf(S.sc),exp=S.sc+(7-S.day+ (S.slot?0:1))*9;
+ if(S.aw>=75)return glitch('상관없어');
+ if(tr.k==='first')return '전교 1등을 제쳤다!';if(exp>=84)return '박빙! 따라잡는 중';if(exp>=74)return '조금 밀린다';return '아직 한참 멀었다'}
+function renderMsgs(){$('msgs').innerHTML='';S.log.forEach(m=>{const d=document.createElement('div');d.className='msg'+(m.cls?' '+m.cls:'');const w=document.createElement('span');w.className='who';w.textContent=m.who;const t=document.createElement('span');t.className='tx';t.textContent=m.cls==='unk'?m.tx:glitch(m.tx);d.append(w,t);$('msgs').append(d)});}
+function render(){
+ document.body.className=['','aw1','aw2','aw3'][awLevel()];
+ $('day').textContent=glitch('DAY '+S.day);
+ $('dleft').textContent=S.day===7&&S.slot===1?'오늘이 마지막 밤':'시험까지 '+(8-S.day)+'일';
+ const sl=$('slot');sl.textContent=S.slot?'심야':'방과 후';sl.className='slot'+(S.slot?' night':'');
+ const tr=tierOf(S.sc);
+ $('rank').textContent=awLevel()>=3?'전교 1등':(tr.r<=3?'전교 '+tr.r+'등?!':'전교 '+tr.r+'등쯤');
+ $('gap').textContent=gapText();
+ $('b-hp').style.width=S.hp+'%';$('n-hp').textContent=word(S.hp,'hp');$('row-hp').classList.toggle('low',S.hp<30);
+ $('b-mt').style.width=S.mt+'%';$('n-mt').textContent=word(S.mt,'mt');$('row-mt').classList.toggle('low',S.mt<30);
+ $('row-aw').hidden=S.aw===0;$('b-aw').style.width=S.aw+'%';$('n-aw').textContent=S.aw>=75?'??':'';
+ $('chatn').textContent=awLevel()>=2?'5명':'4명';
+ renderMsgs();
+ scene();
+ const box=$('choices');box.innerHTML='';
+ let list=S.slot===0?AFTER.slice():NIGHT.concat(S.pills>0?[PILL]:[]);
+ if(awLevel()>=2)list=list.sort(()=>Math.random()-.5);
+ list.forEach(a=>{
+  const b=document.createElement('button');b.className='ch'+(a.id==='pill'?' pillc':'');
+  b.innerHTML='<span class="nm"></span><span class="ds"></span><span class="fx"></span>';
+  b.querySelector('.nm').textContent=a.nm;b.querySelector('.ds').textContent=a.ds;
+  hint(a).forEach(([t,c])=>{const s=document.createElement('span');s.textContent=t;if(c)s.className=c;b.querySelector('.fx').append(s)});
+  if(S.took&&a.id==='sleep'&&chance(.4)){b.querySelector('.nm').textContent='잠들면 안 돼';setTimeout(()=>{if(b.isConnected)b.querySelector('.nm').textContent=a.nm},900)}
+  b.onclick=()=>act(a);box.append(b);
+ });
+ $('inv').textContent=S.pills>0?'가방 속 알약 '+S.pills+'개':'';
+}
+function act(a){
+ // at the deepest level, the choice is sometimes made for you
+ if(awLevel()===3&&S.slot===1&&a.id!=='pill'&&chance(.18)){a=S.pills>0?PILL:NIGHT[1];toast('…방금 내가 이걸 눌렀나?')}
+ if(a.id==='counsel'){openCounsel();return}
+ const eff=(S.hp<30?0.5:1)*(S.mt<25?0.7:1);
+ let g=a.id==='pill'?a.s:Math.round(a.s*eff*rnd(.7,1.3));
+ let dh=a.h,dm=a.m,line=BUBBLE[a.id],bad=false;
+ const lk=(LUCK[a.id]||[]).find(([p])=>chance(p));
+ if(lk){const r=lk[2](g);g=r.g;dh+=r.h||0;dm+=r.m||0;line=lk[1];bad=!r.good}
+ S.sc+=g;S.hp+=dh;S.mt+=dm;S.cnt[a.id]=(S.cnt[a.id]||0)+1;fixStats();
+ S.mood=(a.id==='friend'||a.id==='sleep')&&!bad?'happy':'normal';
+ if(a.id==='pill'){S.pills--;S.used++;S.took=true;S.aw=clamp(S.aw+a.aw);setTimeout(()=>whisper(),900)}
+ say(line,bad);if(bad)shake();
+ if(eff<1&&a.s&&a.id!=='pill')toast('컨디션 난조… 공부가 머리에 안 들어온다');
+ else if(S.hp<25&&S.hp>0)toast('체력이 바닥 직전이야! 이러다 쓰러진다');
+ else if(S.mt<25&&S.mt>0)toast('멘탈이 흔들린다… 좀 쉬어야 할 듯');
+ if(checkOver())return;
+ advance();
+}
+function checkOver(){
+ if(S.took)return false; // the pill keeps you standing
+ if(S.hp<=0){S.over='burn';setTimeout(finish,700);render();return true}
+ if(S.mt<=0){S.over='mental';setTimeout(finish,700);render();return true}
+ return false;
+}
+function advance(){
+ if(S.slot===0){
+  S.slot=1;
+  if(S.day===3&&S.met===0){render();openMeet('meet1');return}
+  if(S.day===5&&S.met===1){render();openMeet('meet2');return}
+ }else{
+  if(S.day===7){finish();return}
+  S.day++;S.slot=0;S.mt-=4;fixStats();if(checkOver())return;
+  const m=MORNING[S.day-1];addMsg(m[0],m[1]);
+  if(RIVAL[S.day])addMsg('전교 1등',S.took&&S.day>=4?RIVAL_AW:RIVAL[S.day],'rv');
+  if(S.aw>0&&chance(.5+S.aw/200))addMsg('알 수 없음',pick(WHISPER),'unk');
+  render();
+  if(EVENT_DAYS.includes(S.day)){openRandom();return}
+  maybeHallu();
+  return;
+ }
+ if(S.aw>0&&chance(.4+S.aw/200))addMsg('알 수 없음',pick(WHISPER),'unk');
+ render();
+ maybeHallu();
+}
+function ovOpen(light){$('ov').hidden=false;$('ov').classList.remove('void');$('evbox').className='ev'+(light?' light':'');$('evbtns').innerHTML='';$('evttl').hidden=true}
+function btn(t,fn,red){const b=document.createElement('button');b.textContent=t;if(red)b.className='red';b.onclick=fn;$('evbtns').append(b)}
+function openRandom(){
+ const e=S.evPool.shift()||pick(EVENTS);ovOpen(true);
+ $('evart').innerHTML='';$('evplace').textContent='DAY '+S.day+' · 오늘의 사건';$('evttl').hidden=false;$('evttl').textContent=e.t;$('evline').textContent=e.d;
+ e.a.forEach(([label,fn])=>btn(label,()=>{const res=fn();fixStats();$('ov').hidden=true;say(res,/↓|0점|찝찝|틀린|생각만/.test(res));toast(res);if(!checkOver())render()}));
+}
+function doorClosed(){return `<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice" aria-label="잠긴 상담실 문"><rect width="400" height="170" fill="#E9E4DA"/><rect x="140" y="20" width="120" height="150" fill="#9C7A5B" stroke="#22252E" stroke-width="4"/><circle cx="244" cy="100" r="6" fill="#FFE45C" stroke="#22252E" stroke-width="2"/><rect x="155" y="44" width="90" height="40" fill="#FAFAF6" stroke="#22252E" stroke-width="2"/><rect x="162" y="54" width="60" height="5" fill="#22252E"/><rect x="162" y="66" width="74" height="5" fill="#5B6170"/></svg>`}
+function openCounsel(){
+ ovOpen(true);$('evart').innerHTML=doorClosed();$('evplace').textContent='본관 2층 · 상담실';
+ $('evline').innerHTML='문이 잠겨 있다. 종이 한 장이 붙어 있다.<br><b>“새 학기 첫날, 새 상담 선생님이 부임합니다.”</b>';
+ btn('돌아간다',()=>{$('ov').hidden=true;S.mt+=6;S.cnt.counsel=(S.cnt.counsel||0)+1;fixStats();say('그래도 조금은 마음이 놓였다');advance()});
+}
+function alley(){return `<svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice" aria-label="해 질 녘 학원가 골목의 낯선 사람">
+ <defs><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A6B"/><stop offset="1" stop-color="#5B3A6E"/></linearGradient></defs>
+ <rect width="400" height="170" fill="url(#dusk)"/>
+ <rect x="0" y="30" width="110" height="140" fill="#2A2233"/><rect x="290" y="20" width="110" height="150" fill="#2A2233"/>
+ <rect x="20" y="50" width="70" height="22" fill="#FFE45C" opacity=".8"/><rect x="305" y="44" width="80" height="20" fill="#8EC5FF" opacity=".7"/>
+ <rect x="110" y="140" width="180" height="30" fill="#3A2F44"/>
+ <circle cx="200" cy="78" r="16" fill="#120F16"/><path d="M180 72 Q200 50 220 72 L224 96 L176 96Z" fill="#120F16"/>
+ <rect x="178" y="94" width="44" height="58" rx="14" fill="#120F16"/>
+ <circle cx="226" cy="118" r="6" fill="#D7303A"/></svg>`}
+function openMeet(kind){
+ ovOpen(false);$('evart').innerHTML=alley();$('evplace').textContent=kind==='meet1'?'DAY 3 · 하굣길, 학원가 골목':'DAY 5 · 하굣길, 같은 골목';
+ const lines=kind==='meet1'
+  ?['처음 보는 사람이 길을 막아선다.','“성적 올리고 싶지 않아?”','“머리 좋아지는 약. 대치동 애들은 다 알아.”','작은 빨간 알약 세 알을 내민다.']
+  :(S.took?['그 사람이 또 서 있다.','“효과 좋지? 더 줄까?”']:['그 사람이 또 서 있다.','“아직도 그 등수야? 시험 이틀 남았잖아.”','빨간 알약 세 알을 다시 내민다.']);
+ let i=0;const step=()=>{$('evline').textContent=lines[i];$('evbtns').innerHTML='';
+  if(i<lines.length-1){btn('…',()=>{i++;step()})}
+  else{const more=S.took&&kind==='meet2';btn(more?'받는다 (+2알)':'받는다',()=>{S.pills+=more?2:3;S.met++;$('ov').hidden=true;say('가방에 알약을 넣었다',true);render()},true);
+   btn('무시하고 지나간다',()=>{S.met++;$('ov').hidden=true;S.mt-=3;fixStats();say('찜찜하다… 진짜 다들 먹나?',true);if(!checkOver())render()})}};
+ step();
+}
+
+// ---- 환청 · 환각 (공개 설정: 각성제 복용 후 죽은 자의 목소리를 듣는다) ----
+let SOUND=true;
+function whisper(text){
+ if(!SOUND)return;
+ try{const AC=window.AudioContext||window.webkitAudioContext;const ctx=whisper.ctx||(whisper.ctx=new AC());
+  const len=Math.floor(ctx.sampleRate*1.8),buf=ctx.createBuffer(1,len,ctx.sampleRate),d=buf.getChannelData(0);
+  for(let i=0;i<len;i++){d[i]=(Math.random()*2-1)*Math.pow(Math.sin(Math.PI*i/len),2)*(.6+.4*Math.sin(i/900))}
+  const src=ctx.createBufferSource();src.buffer=buf;const f=ctx.createBiquadFilter();f.type='bandpass';f.frequency.value=1400;f.Q.value=1.2;
+  const g=ctx.createGain();g.gain.value=.14;src.connect(f);f.connect(g);g.connect(ctx.destination);src.start();}catch(e){}
+ try{if(text&&'speechSynthesis' in window){const u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';u.rate=.62;u.pitch=.2;u.volume=.3;speechSynthesis.cancel();speechSynthesis.speak(u)}}catch(e){}
+}
+function maybeHallu(){
+ if(!S.took||!$('ov').hidden||S.over)return;
+ if(S.day===7&&S.slot===1)return interrupt(['…','오늘이 마지막 밤이야.','같이 풀자.']);
+ if(!chance(.65))return;
+ const t=S.hn=(S.hn||0)+1;
+ if(t%4===1){addMsg('알 수 없음','…거기 있지?','unk');render();say('…방금 누가 내 이름 불렀어?',true);whisper('거기 있지')}
+ else if(t%4===2){S.ghost=true;scene();say('방금… 뒤에 누가 서 있었는데',true);whisper();setTimeout(()=>{S.ghost=false;scene()},800)}
+ else if(t%4===3){const m=S.log.slice().reverse().find(x=>!x.cls);if(m)setTimeout(()=>{m.tx='다들 너 보고 있어';renderMsgs();whisper('보고 있어')},1300)}
+ else interrupt(['…','조금만 더 하자.','잠들면 안 돼.']);
+}
+function interrupt(lines){
+ ovOpen(false);$('ov').classList.add('void');$('evbox').className='ev void';$('evart').innerHTML='';$('evplace').textContent='';
+ let i=0;const step=()=>{$('evline').textContent=lines[i];if(i===1)whisper(lines[i]);i++;
+  if(i<lines.length)setTimeout(step,1100);else setTimeout(()=>{$('ov').hidden=true;document.body.classList.add('flick');setTimeout(()=>document.body.classList.remove('flick'),900)},1500)};
+ step();
+}
+async function drawCard(name,variant){
+ const c=document.createElement('canvas');c.width=1080;c.height=1920;const x=c.getContext('2d');
+ try{await Promise.all(['48px Jua','40px "Gowun Dodum"','60px "Nanum Pen Script"'].map(f=>document.fonts.load(f)))}catch(e){}
+ const key=endingKey(),dark=key==='aw'||key==='burn'||key==='mental',tr=tierOf(S.sc);
+ x.fillStyle=key==='aw'?'#FAFAF6':key==='burn'?'#EAF4F1':key==='mental'?'#1E2340':'#FAFAF6';x.fillRect(0,0,1080,1920);
+ x.strokeStyle=key==='aw'?'#E3E8EF':key==='mental'?'#2C3358':'#E3E8EF';x.lineWidth=2;for(let i=0;i<1080;i+=48){x.beginPath();x.moveTo(i,0);x.lineTo(i,1920);x.stroke()}for(let j=0;j<1920;j+=48){x.beginPath();x.moveTo(0,j);x.lineTo(1080,j);x.stroke()}
+ const night=key==='mental',ink=night?'#F2EEF5':'#22252E',soft=night?'#A9A0B4':'#5B6170';
+ x.fillStyle='#FF8FAB';x.beginPath();x.roundRect(90,150,330,80,40);x.fill();
+ x.fillStyle='#fff';x.font='44px Jua';x.fillText('D-7 벼락치기',122,206);
+ x.fillStyle=soft;x.font='40px "Gowun Dodum"';x.fillText('성령고 새 학기 진단평가 결과',90,320);
+ x.fillStyle=ink;x.font='56px Jua';x.fillText((name||'익명의 수험생')+(key==='aw'&&variant==='B'?' 외 1명':'')+'의 성적표',90,410);
+ if(key==='aw'){
+  x.font='190px Jua';const big='전교 1등';const w=x.measureText(big).width;
+  x.fillStyle='#FFE45C';x.fillRect(80,620,Math.min(w+30,920),90);
+  if(variant==='B'){x.globalAlpha=.22;x.fillStyle='#D7303A';x.fillText(big,104,700);x.globalAlpha=1}
+  x.fillStyle=ink;x.fillText(big,90,690);
+  x.font='64px Jua';x.fillStyle=ink;x.fillText('완벽한 7일',90,820);
+  x.font='64px "Nanum Pen Script"';
+  if(variant==='B'){x.fillStyle='#B0222B';x.fillText('축하해. 우리가 해냈어.',90,910)}
+  else{x.fillStyle=soft;x.fillText('한숨도 안 잤는데 하나도 안 피곤해',90,910)}
+ }else if(key==='burn'||key==='mental'){
+  const big=key==='burn'?'보건실':'멘탈 붕괴';
+  x.font='170px Jua';x.fillStyle=key==='burn'?'#2E9C7B':'#8EC5FF';x.fillText(big,90,700);
+  x.font='64px "Nanum Pen Script"';x.fillStyle=ink;
+  if(key==='burn'){x.fillText('시험 날, 보건실 침대에서 눈을 떴다',90,830);x.fillStyle=soft;x.fillText('벼락치기도 체력이 있어야…',90,900)}
+  else{x.fillText('문제집을 덮고 노래방으로 도망쳤다',90,830);x.fillStyle=soft;x.fillText('가끔은 도망쳐도 괜찮아',90,900)}
+  x.font='44px Jua';x.fillStyle=soft;x.fillText('DAY '+S.day+'에 게임 오버',90,1020);
+ }else{
+  x.font='190px Jua';const big=tr.r<=3?tr.t:'전교 '+tr.r+'등';const w=x.measureText(big).width;
+  x.fillStyle='#FFE45C';x.fillRect(80,620,Math.min(w+30,920),90);x.fillStyle=ink;x.fillText(big,90,690);
+  x.font='64px Jua';x.fillStyle=ink;x.fillText(tr.r<=3?'전교 '+tr.r+'등':tr.t,90,820);
+  x.font='64px "Nanum Pen Script"';x.fillStyle=soft;x.fillText(tr.c,90,910);
+ }
+ const rows=[['학원',S.cnt.hagwon||0],['자습',S.cnt.self||0],['밤샘',S.cnt.allnight||0],['꿀잠',S.cnt.sleep||0],['떡볶이',S.cnt.friend||0],[key==='aw'&&variant==='B'?'같이 보낸 밤':'상담실 노크',key==='aw'&&variant==='B'?S.used:(S.cnt.counsel||0)]];
+ rows.forEach((r,i)=>{const cx=90+(i%3)*310,cy=1160+Math.floor(i/3)*170;x.strokeStyle=ink;x.lineWidth=4;x.beginPath();x.roundRect(cx,cy,280,140,24);x.stroke();x.fillStyle=soft;x.font='44px "Gowun Dodum"';x.fillText(r[0],cx+28,cy+58);x.fillStyle=key==='aw'&&variant==='B'&&i===5?'#B0222B':ink;x.font='56px Jua';x.fillText(r[1]+'회',cx+28,cy+118)});
+ x.fillStyle=soft;x.font='38px "Gowun Dodum"';x.fillText('엔딩 도감 '+loadDex().length+' / '+ENDINGS.length+' 수집',90,1560);
+ if(key==='aw'&&variant==='B'){x.fillStyle='#B0222B';x.font='54px "Nanum Pen Script"';x.save();x.translate(620,1640);x.rotate(-.06);x.fillText('다음 시험도 같이 보자',0,0);x.restore()}
+ x.fillStyle=ink;x.font='44px Jua';x.fillText('@성령고 대신 전해드립니다',90,1720);
+ x.fillStyle=soft;x.font='34px "Gowun Dodum"';x.fillText('#성령고벼락치기  ·  SBS 〈각성〉 캠페인 가안',90,1790);
+ return c;
+}
+let cardCanvas=null;
+async function finish(){
+ $('ov').hidden=true;show('s-result');$('card').hidden=true;$('resultUI').hidden=true;$('grading').hidden=false;
+ const key=endingKey();const got=loadDex();const isNew=!got.includes(key);if(isNew){got.push(key);saveDex(got)}
+ const name=$('nm').value.trim();
+ $('grading').textContent=S.over?'…눈을 떠 보니':'채점 중…';
+ const reveal=()=>{$('card').hidden=false;$('grading').hidden=true;$('resultUI').hidden=false;renderDex($('dexgrid'),$('dexn'),isNew?key:null);if(isNew)toast('새 엔딩 해금: '+ENDINGS.find(e=>e.k===key).n)};
+ if(key==='aw'){
+  const A=await drawCard(name,'A');cardCanvas=await drawCard(name,'B');
+  setTimeout(()=>{$('card').src=A.toDataURL('image/png');$('card').hidden=false;$('grading').hidden=true;toast('축하해! 전교 1등!');
+   setTimeout(()=>{document.body.classList.add('flick');whisper('우리가 해냈어');
+    setTimeout(()=>{$('card').src=cardCanvas.toDataURL('image/png');document.body.classList.remove('flick');reveal()},450)},2600)},1200);
+  return;
+ }
+ cardCanvas=await drawCard(name);
+ setTimeout(()=>{$('card').src=cardCanvas.toDataURL('image/png');reveal()},1200);
+}
+function resultText(){const k=endingKey(),tr=tierOf(S.sc);
+ if(k==='aw')return 'D-7 벼락치기 결과: 전교 1등. …근데 응시자가 2명이래. #성령고벼락치기';
+ if(k==='burn')return 'D-7 벼락치기 결과: DAY '+S.day+'에 보건실행… 벼락치기도 체력이 있어야 #성령고벼락치기';
+ if(k==='mental')return 'D-7 벼락치기 결과: 멘탈 붕괴. 문제집 덮고 노래방 감 #성령고벼락치기';
+ return 'D-7 벼락치기 결과: '+(tr.r<=3?tr.t:'전교 '+tr.r+'등')+' ('+tr.t+') — '+tr.c+' #성령고벼락치기'}
+function bridge(){
+ show('s-bridge');const k=endingKey();
+ if(k==='aw'){$('br-h').textContent='당신처럼 그 알약을 고른 학생이 또 있습니다.';$('br-p').innerHTML='서울대 의대를 꿈꾸며 대치동에 온 전학생 <em>공하랑</em>. 그리고 그녀는 죽은 자의 목소리를 듣기 시작합니다.'}
+ else if(k==='burn'||k==='mental'){$('br-h').textContent='당신은 끝까지 버티지 못했습니다.';$('br-p').innerHTML='버티지 못할까 봐 두려워서, 정체불명의 각성제에 손을 댄 학생이 있습니다. 서울대 의대를 꿈꾸는 전학생 <em>공하랑</em>.'}
+ else{$('br-h').textContent='당신은 끝까지 거절했습니다.';$('br-p').innerHTML='하지만 서울대 의대를 꿈꾸며 대치동에 온 전학생 <em>공하랑</em>은, 정체불명의 각성제에 손을 댑니다.'}
+ $('door').className='door';$('links').hidden=true;$('opendoor').hidden=false;
+ $('door').innerHTML=`<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-label="상담실 문과 그 안의 신부 실루엣">
+ <rect width="400" height="300" fill="#2A2632"/>
+ <rect x="110" y="30" width="180" height="270" fill="#F7E3B0"/>
+ <circle cx="200" cy="120" r="30" fill="#141216"/><path d="M150 300 L156 186 Q200 156 244 186 L250 300Z" fill="#141216"/><rect x="190" y="160" width="20" height="10" fill="#F2EEF5"/>
+ <g class="leaf"><rect x="110" y="30" width="180" height="270" fill="#9C7A5B" stroke="#141216" stroke-width="4"/><rect x="130" y="60" width="140" height="60" fill="#FAFAF6"/><rect x="142" y="76" width="100" height="7" fill="#22252E"/><rect x="142" y="94" width="116" height="7" fill="#5B6170"/><circle cx="270" cy="170" r="8" fill="#FFE45C"/></g></svg>`;
+}
+function startDex(){const got=loadDex();$('dex-start').hidden=got.length===0;if(got.length)renderDex($('dexgrid0'),$('dexn0'))}
+$('go').onclick=()=>{reset();addMsg(MORNING[0][0],MORNING[0][1]);addMsg('전교 1등','다들 이번엔 좀 따라와 봐ㅋ','rv');show('s-game');say('시험까지 7일… 할 수 있다!');render()};
+$('again').onclick=$('again2').onclick=()=>{startDex();show('s-start')};
+$('tobridge').onclick=bridge;
+$('opendoor').onclick=()=>{$('door').classList.add('open');$('opendoor').hidden=true;$('links').hidden=false};
+$('copy').onclick=async()=>{const t=resultText();try{await navigator.clipboard.writeText(t);toast('결과 문구를 복사했어요')}catch(e){toast(t)}};
+$('snd').onclick=()=>{SOUND=!SOUND;$('snd').textContent=SOUND?'소리 켬':'소리 끔';$('snd').setAttribute('aria-pressed',SOUND);if(!SOUND)try{speechSynthesis.cancel()}catch(e){}};
+startDex();
+(async()=>{try{const dl=await window.claude?.use?.('downloads');if(dl){$('save').hidden=false;$('savehint').hidden=true;$('save').onclick=async()=>{if(!cardCanvas)return;const blob=await new Promise(r=>cardCanvas.toBlob(r,'image/png'));try{await dl.save({filename:'성령고_벼락치기_결과.png',data:blob});toast('저장했어요. 스토리에 올려 보세요')}catch(e){if(e&&e.code!=='declined')toast('지금은 저장할 수 없어요. 이미지를 길게 눌러 저장해 주세요')}}}}catch(e){}})();
+</script>
+
+</body></html>
